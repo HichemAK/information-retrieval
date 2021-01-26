@@ -7,7 +7,7 @@ from utils import TermDocumentDict
 with open('stopwords_fr.txt', 'r', encoding='utf-8') as f:
     stop_words = f.read()
 
-stop_words = stop_words.split("\n")
+stop_words = set(stop_words.split("\n"))
 
 collection_path = 'collection-RI'
 documents = {}
