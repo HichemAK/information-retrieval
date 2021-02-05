@@ -55,6 +55,7 @@ def inverse_dict(dictionary, ):
 
 class TermDocumentDict:
     def __init__(self, dictionary: dict = None):
+        self._max_freq_docs = {k : max(v.values()) for k, v in dictionary.items()}
         self.all_documents = list(dictionary.keys())
         self._dict = inverse_dict(dictionary)
         self.N = len(dictionary)
@@ -91,9 +92,8 @@ class TermDocumentDict:
         for k in self._dict:
             term = self._dict[k]
             ni = len(term)
-            sup = max(term.values())
             for document in term:
-                term[document] = term[document] / sup * math.log10(self.N / ni + 1)
+                term[document] = term[document] / self._max_freq_docs[document] * math.log10(self.N / ni + 1)
 
     def weight(self):
         """Weight inplace the dictionary using TF-IDF formula"""

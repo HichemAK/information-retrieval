@@ -16,7 +16,8 @@ class VectorSpaceModel:
     def __init__(self, dictionary):
         self._dict = TermDocumentDict(dictionary)
         self._dict.weight_inplace()
-        self._norm_documents = {doc : np.linalg.norm(self._dict.terms(doc)) for doc in self._dict.all_documents}
+        self._norm_documents = {doc : np.linalg.norm(list(self._dict.terms(doc).values())) for doc in
+                                self._dict.all_documents}
         self._sim = {
             SimilarityFunctions.DOT : self._eval_dot_product,
             SimilarityFunctions.COSINUS : self._eval_cosinus,
@@ -29,7 +30,7 @@ class VectorSpaceModel:
         for term in l:
             docs = self._dict.documents(term)
             for k, v in docs.items():
-                if k in document_scores:
+                if k not in document_scores:
                     document_scores[k] = 0
                 document_scores[k] += v
         return document_scores

@@ -1,0 +1,12 @@
+from models.vector_space_model import VectorSpaceModel, SimilarityFunctions
+
+dictionary = {
+    'd1' : {'langage' : 1, 'programmation' : 1, 'python' : 1, 'utilisé' : 1, 'traitement': 1, 'texte' : 1},
+    'd2' : {'langage' : 2, 'java' : 1, 'basé' : 1, 'c++' : 1},
+    'd3' : {'langage' : 2, 'programmation' : 1, 'utilisé' : 1, 'traduire' : 1, 'algorithme' : 1, 'programme': 1}
+}
+query = 'langage python java'
+
+vm = VectorSpaceModel(dictionary)
+for sim_f in SimilarityFunctions:
+    print(sim_f, vm.eval(query, sim_f))
