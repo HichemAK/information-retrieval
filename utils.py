@@ -44,15 +44,20 @@ def preprocess_cacm(dictionary : dict):
         dictionary[k] = s
     return dictionary
 
+def inverse_dict(dictionary, ):
+    r = {}
+    for k in dictionary:
+        for term, value in dictionary[k].items():
+            if term not in r:
+                r[term] = {}
+            r[term][k] = value
+    return r
+
 class TermDocumentDict:
     def __init__(self, dictionary: dict = None):
-        self._dict = {}
+        self.all_documents = list(dictionary.keys())
+        self._dict = inverse_dict(dictionary)
         self.N = len(dictionary)
-        for k in dictionary:
-            for term, value in dictionary[k].items():
-                if term not in self._dict:
-                    self._dict[term] = {}
-                self._dict[term][k] = value
 
     def documents(self, term):
         """Get all the docuemnts that contains the term with their value"""
@@ -91,6 +96,7 @@ class TermDocumentDict:
                 term[document] = term[document] / sup * math.log10(self.N / ni + 1)
 
     def weight(self):
+        """Weight inplace the dictionary using TF-IDF formula"""
         c = copy.deepcopy(self)
         c.weight_inplace()
         return c
