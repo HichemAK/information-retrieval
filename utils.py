@@ -44,7 +44,7 @@ def preprocess_cacm(dictionary : dict):
         dictionary[k] = s
     return dictionary
 
-def inverse_dict(dictionary, ):
+def inverse_dict(dictionary):
     r = {}
     for k in dictionary:
         for term, value in dictionary[k].items():
