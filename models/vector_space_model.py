@@ -35,11 +35,11 @@ class VectorSpaceModel:
                     data.append(v)
             self._dict = scipy.sparse.csr_matrix((data, (row, column)),
                                                  shape=(len(self._dict.dict), len(self._norm_documents)),
-                                                 )
+                                                 dtype=np.double)
             self._eval_dot_product = self._eval_dot_product_sparse
 
         self._sim = {
-            SimilarityFunctions.DOT: (self._eval_dot_product, 11),
+            SimilarityFunctions.DOT: (self._eval_dot_product, 10),
             SimilarityFunctions.COSINUS: (self._eval_cosinus, 9),
             SimilarityFunctions.DICE: (self._eval_dice, 7),
             SimilarityFunctions.JACCARD: (self._eval_jaccard, 7)
