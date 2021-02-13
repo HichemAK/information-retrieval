@@ -54,7 +54,7 @@ class VectorSpaceModel:
         row = (0,) * len(l)
         column = [self.tokens[x] for x, _ in l]
         data = [x for _, x in l]
-        v = scipy.sparse.csr_matrix((data, (row, column)), shape=(1, len(self.tokens)))
+        v = scipy.sparse.csr_matrix((data, (row, column)), shape=(1, len(self.tokens)), dtype=np.double)
         v = v @ self._dict
         data = v.data.tolist()
         coord = v.nonzero()[1]
