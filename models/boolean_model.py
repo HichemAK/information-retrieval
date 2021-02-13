@@ -77,15 +77,16 @@ class BooleanModel:
     def eval(self, query: str):
         """evaluate boolean query. Tokens are between parenthesis and 'and', 'or', 'not' are used as logical operations.
         Example: \"('science' or 'algebra') and 'mathematics'\""""
+        try:
+            eval(query)
+        except SyntaxError:
+            return None
         Token = self.Token
         query = query.lower()
         f = BooleanModel._replace()
         query = re.sub(self.extract_tokens, f, query)
         for rep, w in self.replace_op:
             query = query.replace(rep, w)
-        is_correct, _ = BooleanModel._check_expression(query)
-        if not is_correct:
-            return None
         query = re.sub(self.extract_tokens, BooleanModel._replace_reverse(f), query)
         query = re.sub(self.extract_tokens, self.replace_tokens, query)
         return eval(query).s

@@ -1,4 +1,6 @@
+from models.boolean_model import BooleanModel
 from models.vector_space_model import VectorSpaceModel, SimilarityFunctions
+
 
 dictionary = {
     'd1' : {'langage' : 1, 'programmation' : 1, 'python' : 1, 'utilisé' : 1, 'traitement': 1, 'texte' : 1},
@@ -7,6 +9,9 @@ dictionary = {
 }
 query = 'langage python java'
 
-vm = VectorSpaceModel(dictionary)
+vm = VectorSpaceModel(dictionary, sparse=True)
 for sim_f in SimilarityFunctions:
     print(sim_f, vm.eval(query, sim_f))
+
+bm = BooleanModel(dictionary)
+print(bm.eval("'lAnGage' and ('PYthon' or'Java')"))
