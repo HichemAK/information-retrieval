@@ -87,7 +87,7 @@ class VectorSpaceModel:
         document_scores = {k: v / (self._norm_documents[k] ** 2 + l_norm_square - v) for k, v in document_scores.items()}
         return document_scores
 
-    def eval(self, query, similarity_function=SimilarityFunctions.DOT, k=None):
+    def eval(self, query, similarity_function=SimilarityFunctions.DOT, k=None, f=None):
         query = query.lower()
         query_terms = re.findall(r'\w+', query)
         query_terms = [x for x in query_terms if x not in self.stopwords]
@@ -97,8 +97,18 @@ class VectorSpaceModel:
         sim, k_pred = self._sim[similarity_function]
         res = sim(query_terms)
         res = sorted([(k,v) for k,v in res.items()], reverse=True, key=lambda x : x[1])
-        if k is None:
+        if k is None and f is None:
             return res[:k_pred]
-        else:
+        elif k is not None:
             return res[:k]
+        elif k == -1:
+            return res
+        else:
+            l = []
+            for x in res:
+                if x[1] < f:
+                    break
+                l.append(x)
+            return l
+
 

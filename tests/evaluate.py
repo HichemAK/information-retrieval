@@ -1,8 +1,6 @@
 from models.evaluator import Evaluator
-from models.vector_space_model import VectorSpaceModel
+from models.vector_space_model import VectorSpaceModel, SimilarityFunctions
 from utils import read_cacm, preprocess_cacm, read_cacm_query
-
-import pprint
 
 dictionary = read_cacm('../CACM/cacm.all')
 dictionary = preprocess_cacm(dictionary)
@@ -11,4 +9,5 @@ query_dict, qrels_dict = read_cacm_query('../CACM/query.text', '../CACM/qrels.te
 vm = VectorSpaceModel(dictionary, sparse=True)
 
 evaluator = Evaluator(vm, query_dict, qrels_dict)
-performances = evaluator.precision_recall_k(range(1,51))
+query_id = 1
+evaluator.precision_recall_query(query_id, SimilarityFunctions.DOT, interpolate=True)
