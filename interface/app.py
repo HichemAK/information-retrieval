@@ -85,6 +85,8 @@ class App(QtWidgets.QMainWindow):
 
         self.queryTable.cellClicked.connect(f)
 
+        self.setFixedSize(self.size())
+
     def select_action(self, query_id):
         def f(interpolate, qt):
             plt.figure(0)

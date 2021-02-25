@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Evaluation du modèle vectoriel</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <widget class="QTableWidget" name="queryTable">

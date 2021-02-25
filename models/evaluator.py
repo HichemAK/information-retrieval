@@ -92,7 +92,7 @@ class Evaluator:
             precision.append(p), recall.append(r)
         if interpolate:
             precision = np.row_stack(precision).mean(axis=0)
-            recall = np.row_stack(precision).mean(axis=0)
+            recall = np.row_stack(recall).mean(axis=0)
         else:
             precision = sum(np.array(x).mean() if len(x) else 0 for x in precision)/len(precision)
             recall = sum(np.array(x).mean() if len(x) else 0 for x in recall)/len(recall)
