@@ -31,18 +31,23 @@ class Evaluator:
             }
         return model_perform
 
-    def precision_recall_k(self, var, values, sims=SimilarityFunctions):
+    def precision_recall_range(self, var, values, interpolate=False, sims=SimilarityFunctions):
         model_perfs = {sim: {
             "precision": [],
             "recall": [],
             "f1_score": []
         } for sim in sims}
         for k in values:
-            perf = self.precision_recall(sims=sims, **{var: k})
-            for sim, p in perf.items():
+            for sim in sims:
+                precision, recall = self.precision_recall_query_sim_all(sim=sim, interpolate=interpolate, **{var: k})
+                if interpolate:
+                    precision = precision.mean()
+                    recall = precision.mean()
+                f1_score = 2 * precision * recall / (precision + recall) if precision + recall != 0 else 0
                 m = model_perfs[sim]
-                for k, v in p.items():
-                    m[k].append(v)
+                m['precision'].append(precision)
+                m['recall'].append(recall)
+                m['f1_score'].append(f1_score)
         return model_perfs
 
     def precision_recall_query(self, query_id, sim=SimilarityFunctions.DOT, interpolate=False, **kwargs):
@@ -71,18 +76,22 @@ class Evaluator:
             precision = [f(x) for x in recall]
         return precision, recall
 
-    def precision_recall_query_all_interpolate(self, **kwargs):
+    def precision_recall_query_all(self, sims=list(SimilarityFunctions), interpolate=False, **kwargs):
         d = dict()
-        for sim in SimilarityFunctions:
-            d[sim] = self.precision_recall_query_interpolate(sim, **kwargs)
+        for sim in sims:
+            d[sim] = self.precision_recall_query_sim_all(sim, interpolate, **kwargs)
         return d
 
-    def precision_recall_query_interpolate(self, sim, **kwargs):
+    def precision_recall_query_sim_all(self, sim, interpolate, **kwargs):
         precision = []
         recall = []
         for query_id in self.query_dict:
-            p, r = self.precision_recall_query(query_id, sim, interpolate=True, **kwargs)
+            p, r = self.precision_recall_query(query_id, sim, interpolate=interpolate, **kwargs)
             precision.append(p), recall.append(r)
-        precision = np.row_stack(precision).mean(axis=0)
-        recall = np.row_stack(precision).mean(axis=0)
+        if interpolate:
+            precision = np.row_stack(precision).mean(axis=0)
+            recall = np.row_stack(precision).mean(axis=0)
+        else:
+            precision = sum(np.array(x).mean() if len(x) else 0 for x in precision)/len(precision)
+            recall = sum(np.array(x).mean() if len(x) else 0 for x in recall)/len(recall)
         return precision, recall
