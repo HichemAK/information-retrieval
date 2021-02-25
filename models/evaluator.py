@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 
 from models.vector_space_model import VectorSpaceModel, SimilarityFunctions
@@ -25,25 +27,22 @@ class Evaluator:
             model_perform[sim] = {
                 "precision": precision,
                 "recall": recall,
-                "f1_score": 2 * recall * precision / (recall + precision)
+                "f1_score": 2 * recall * precision / (recall + precision) if recall + precision != 0 else 0
             }
         return model_perform
 
     def precision_recall_k(self, var, values, sims=SimilarityFunctions):
-        c = self.k
         model_perfs = {sim: {
-            "mean_precision": [],
-            "mean_recall": [],
+            "precision": [],
+            "recall": [],
             "f1_score": []
         } for sim in sims}
         for k in values:
-            self.k = k
             perf = self.precision_recall(sims=sims, **{var: k})
             for sim, p in perf.items():
                 m = model_perfs[sim]
                 for k, v in p.items():
                     m[k].append(v)
-        self.k = c
         return model_perfs
 
     def precision_recall_query(self, query_id, sim=SimilarityFunctions.DOT, interpolate=False, **kwargs):
@@ -80,7 +79,10 @@ class Evaluator:
 
     def precision_recall_query_interpolate(self, sim, **kwargs):
         precision = []
+        recall = []
         for query_id in self.query_dict:
-            precision.append(self.precision_recall_query(query_id, sim, interpolate=True, **kwargs))
+            p, r = self.precision_recall_query(query_id, sim, interpolate=True, **kwargs)
+            precision.append(p), recall.append(r)
         precision = np.row_stack(precision).mean(axis=0)
-        return precision
+        recall = np.row_stack(precision).mean(axis=0)
+        return precision, recall

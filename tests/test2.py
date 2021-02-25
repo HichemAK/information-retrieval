@@ -1,16 +1,12 @@
+from models.evaluator import Evaluator
 from models.vector_space_model import VectorSpaceModel, SimilarityFunctions
 from utils import read_cacm_query, read_cacm, preprocess_cacm
+import numpy as np
 
 dictionary = read_cacm('../CACM/cacm.all')
 dictionary = preprocess_cacm(dictionary)
 query_dict, qrels_dict = read_cacm_query('../CACM/query.text', '../CACM/qrels.text')
 
 vm = VectorSpaceModel(dictionary)
-i = 1
-print(query_dict[i])
-res = vm.eval(query_dict[i])
-rels = qrels_dict[i]
-print(rels, '\n')
-for i, (k, v) in enumerate(res, start=1):
-    if k in rels or i < 10:
-        print(i , (k,v))
+evaluator = Evaluator(vm, query_dict, qrels_dict)
+performances = evaluator.precision_recall_k('f', np.arange(0.02, 1.01, 0.02))
