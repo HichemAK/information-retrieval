@@ -57,6 +57,8 @@ class Evaluator:
         e = self.model.eval(query, sim, **kwargs)
         e = [x for x, _ in e]
         for i in range(1, len(e) + 1):
+            if e[i-1] not in query_rel:
+                continue
             t = e[:i]
             intersect = query_rel.intersection(t)
             p = len(intersect) / len(t)
