@@ -111,10 +111,10 @@ class VectorSpaceModel:
                 return res[:k_pred]
             else:
                 return great_f(res, f_pred)
-        elif k is not None:
-            return res[:k]
         elif k == -1:
             return res
+        elif k is not None:
+            return res[:k]
         else:
             return great_f(res, f)
 
