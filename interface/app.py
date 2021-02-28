@@ -26,17 +26,14 @@ class App(QtWidgets.QMainWindow):
         self.vm = VectorSpaceModel(dictionary, sparse=True)
         self.evaluator = Evaluator(self.vm, self.query_dict, self.qrels_dict)
 
-        self.queryTable: QtWidgets.QTableWidget = self.findChild(QtWidgets.QTableWidget, "queryTable")
-        self.lineEditPrecisionNoInterpolate: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit,
-                                                                                  "lineEditPrecisionNoInterpolate")
-        self.lineEditPrecisionInterpolate: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit,
-                                                                                "lineEditPrecisionInterpolate")
-        self.lineEditRecall: QtWidgets.QLineEdit = self.findChild(QtWidgets.QLineEdit,
-                                                                  "lineEditRecall")
-        self.sliderF: QtWidgets.QSlider = self.findChild(QtWidgets.QSlider, "sliderF")
-        self.labelF: QtWidgets.QLabel = self.findChild(QtWidgets.QLabel, "labelF")
-        self.graphicsViewPR: QtWidgets.QLabel = self.findChild(QtWidgets.QLabel, 'graphicsViewPR')
-        self.graphicsViewPRI: QtWidgets.QLabel = self.findChild(QtWidgets.QLabel, 'graphicsViewPRI')
+        self.queryTable: QtWidgets.QTableWidget
+        self.lineEditPrecisionNoInterpolate: QtWidgets.QLineEdit
+        self.lineEditPrecisionInterpolate: QtWidgets.QLineEdit
+        self.lineEditRecall: QtWidgets.QLineEdit
+        self.sliderF: QtWidgets.QSlider
+        self.labelF: QtWidgets.QLabel
+        self.graphicsViewPR: QtWidgets.QLabel
+        self.graphicsViewPRI: QtWidgets.QLabel
 
         self.sim2lineEdit = {
             SimilarityFunctions.DOT: [self.lineEditRecall_2, self.lineEditRecall_7, self.lineEditRecall_11],
