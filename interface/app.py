@@ -34,6 +34,11 @@ class App(QtWidgets.QMainWindow):
         self.labelF: QtWidgets.QLabel
         self.graphicsViewPR: QtWidgets.QLabel
         self.graphicsViewPRI: QtWidgets.QLabel
+        self.sliderF_2 : QtWidgets.QSlider
+        self.labelF_2 : QtWidgets.QLabel
+        self.radioButton : QtWidgets.QRadioButton
+        self.radioButton_2: QtWidgets.QRadioButton
+        self.radioButton_3: QtWidgets.QRadioButton
 
         self.sim2lineEdit = {
             SimilarityFunctions.DOT: [self.lineEditRecall_2, self.lineEditRecall_7, self.lineEditRecall_11],
@@ -82,6 +87,32 @@ class App(QtWidgets.QMainWindow):
 
         self.queryTable.cellClicked.connect(f)
 
+        def f():
+            self.labelF_2.setText(str(self.sliderF_2.value()))
+        self.sliderF_2.valueChanged.connect(f)
+
+        def f():
+            self.sliderF_2.setEnabled(False)
+            self.labelF_2.setEnabled(False)
+            self.sliderF.setEnabled(False)
+            self.labelF.setEnabled(False)
+        self.radioButton.toggled.connect(f)
+
+        def f():
+            self.sliderF_2.setEnabled(False)
+            self.labelF_2.setEnabled(False)
+            self.sliderF.setEnabled(True)
+            self.labelF.setEnabled(True)
+        self.radioButton_2.toggled.connect(f)
+
+        def f():
+            self.sliderF_2.setEnabled(True)
+            self.labelF_2.setEnabled(True)
+            self.sliderF.setEnabled(False)
+            self.labelF.setEnabled(False)
+        self.radioButton_3.toggled.connect(f)
+
+
         self.setFixedSize(self.size())
 
     def select_action(self, query_id):
@@ -93,7 +124,7 @@ class App(QtWidgets.QMainWindow):
             for sim in SimilarityFunctions:
                 d = self.sim2lineEdit[sim]
                 precision, recall = self.evaluator.precision_recall_query(query_id, sim, f=self.sliderF.value() / 100,
-                                                                          interpolate=interpolate)
+                                                                          option='interpolate' if interpolate else 'no_interpolate')
                 if not interpolate:
                     d[0].setText(str(np.array(precision).mean())[:7] if len(precision) else '0')
                     d[2].setText(str(max(recall))[:7] if len(recall) else '0')
