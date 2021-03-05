@@ -39,10 +39,10 @@ class VectorSpaceModel:
             self._eval_dot_product = self._eval_dot_product_sparse
 
         self._sim = {
-            SimilarityFunctions.DOT: (self._eval_dot_product, 10, 1.6),
-            SimilarityFunctions.COSINUS: (self._eval_cosinus, 9, 0.18),
-            SimilarityFunctions.DICE: (self._eval_dice, 7, 0.12),
-            SimilarityFunctions.JACCARD: (self._eval_jaccard, 7, 0.06)
+            SimilarityFunctions.DOT: (self._eval_dot_product, 10, 1.6, 0),
+            SimilarityFunctions.COSINUS: (self._eval_cosinus, 9, 0.18, 1),
+            SimilarityFunctions.DICE: (self._eval_dice, 7, 0.12, 1),
+            SimilarityFunctions.JACCARD: (self._eval_jaccard, 7, 0.06, 0)
         }
 
         self.stopwords = set(nltk.corpus.stopwords.words('english'))
@@ -87,14 +87,14 @@ class VectorSpaceModel:
         document_scores = {k: v / (self._norm_documents[k] ** 2 + l_norm_square - v) for k, v in document_scores.items()}
         return document_scores
 
-    def eval(self, query, similarity_function=SimilarityFunctions.DOT, k=None, f=None, f_over_k=True):
+    def eval(self, query, similarity_function=SimilarityFunctions.DOT, k=None, f=None):
         query = query.lower()
         query_terms = re.findall(r'\w+', query)
         query_terms = [x for x in query_terms if x not in self.stopwords]
         query_terms = Counter(query_terms)
         max_freq = max(query_terms.values())
         query_terms = {k:v/max_freq for k,v in query_terms.items()}
-        sim, k_pred, f_pred = self._sim[similarity_function]
+        sim, k_pred, f_pred, best = self._sim[similarity_function]
         res = sim(query_terms)
         res = sorted([(k,v) for k,v in res.items()], reverse=True, key=lambda x : x[1])
 
@@ -107,9 +107,9 @@ class VectorSpaceModel:
             return l
 
         if k is None and f is None:
-            if not f_over_k:
+            if best == 0:
                 return res[:k_pred]
-            else:
+            elif best == 1:
                 return great_f(res, f_pred)
         elif k == -1:
             return res

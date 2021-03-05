@@ -71,7 +71,7 @@ class Evaluator:
             r = len(intersect) / len(query_rel)
             precision.append(p)
             recall.append(r)
-        if option == 'no_interpolate':
+        if option == 'interpolate':
             m = np.array([recall, precision])
 
             def f(x):

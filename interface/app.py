@@ -34,17 +34,21 @@ class App(QtWidgets.QMainWindow):
         self.labelF: QtWidgets.QLabel
         self.graphicsViewPR: QtWidgets.QLabel
         self.graphicsViewPRI: QtWidgets.QLabel
-        self.sliderF_2 : QtWidgets.QSlider
-        self.labelF_2 : QtWidgets.QLabel
-        self.radioButton : QtWidgets.QRadioButton
+        self.sliderF_2: QtWidgets.QSlider
+        self.labelF_2: QtWidgets.QLabel
+        self.radioButton: QtWidgets.QRadioButton
         self.radioButton_2: QtWidgets.QRadioButton
         self.radioButton_3: QtWidgets.QRadioButton
 
         self.sim2lineEdit = {
-            SimilarityFunctions.DOT: [self.lineEditRecall_2, self.lineEditRecall_7, self.lineEditRecall_11],
-            SimilarityFunctions.COSINUS: [self.lineEditRecall_3, self.lineEditRecall_8, self.lineEditRecall_10],
-            SimilarityFunctions.DICE: [self.lineEditRecall_4, self.lineEditRecall_6, self.lineEditRecall_13],
-            SimilarityFunctions.JACCARD: [self.lineEditRecall_5, self.lineEditRecall_9, self.lineEditRecall_12]
+            SimilarityFunctions.DOT: [self.lineEditRecall_2, self.lineEditRecall_7, self.lineEditRecall_11,
+                                      self.lineEditRecall_14, self.lineEditRecall_18],
+            SimilarityFunctions.COSINUS: [self.lineEditRecall_3, self.lineEditRecall_8, self.lineEditRecall_10,
+                                          self.lineEditRecall_17, self.lineEditRecall_21],
+            SimilarityFunctions.DICE: [self.lineEditRecall_4, self.lineEditRecall_6, self.lineEditRecall_13,
+                                       self.lineEditRecall_16, self.lineEditRecall_20],
+            SimilarityFunctions.JACCARD: [self.lineEditRecall_5, self.lineEditRecall_9, self.lineEditRecall_12,
+                                          self.lineEditRecall_15, self.lineEditRecall_19]
         }
 
         self.graphicsViewPR.setScaledContents(True)
@@ -89,6 +93,7 @@ class App(QtWidgets.QMainWindow):
 
         def f():
             self.labelF_2.setText(str(self.sliderF_2.value()))
+
         self.sliderF_2.valueChanged.connect(f)
 
         def f():
@@ -96,6 +101,7 @@ class App(QtWidgets.QMainWindow):
             self.labelF_2.setEnabled(False)
             self.sliderF.setEnabled(False)
             self.labelF.setEnabled(False)
+
         self.radioButton.toggled.connect(f)
 
         def f():
@@ -103,6 +109,7 @@ class App(QtWidgets.QMainWindow):
             self.labelF_2.setEnabled(False)
             self.sliderF.setEnabled(True)
             self.labelF.setEnabled(True)
+
         self.radioButton_2.toggled.connect(f)
 
         def f():
@@ -110,12 +117,18 @@ class App(QtWidgets.QMainWindow):
             self.labelF_2.setEnabled(True)
             self.sliderF.setEnabled(False)
             self.labelF.setEnabled(False)
-        self.radioButton_3.toggled.connect(f)
 
+        self.radioButton_3.toggled.connect(f)
 
         self.setFixedSize(self.size())
 
     def select_action(self, query_id):
+        params = {}
+        if self.radioButton_2.isChecked():
+            params['f'] = self.sliderF.value() / 100
+        elif self.radioButton_3.isChecked():
+            params['k'] = self.sliderF_2.value()
+
         def f(interpolate, qt):
             plt.figure(0)
             plt.xlabel('Recall')
@@ -123,11 +136,17 @@ class App(QtWidgets.QMainWindow):
             plt.grid(True)
             for sim in SimilarityFunctions:
                 d = self.sim2lineEdit[sim]
-                precision, recall = self.evaluator.precision_recall_query(query_id, sim, f=self.sliderF.value() / 100,
-                                                                          option='interpolate' if interpolate else 'no_interpolate')
+                precision, recall = self.evaluator.precision_recall_query(query_id, sim, **params,
+                                                                          option=(
+                                                                              'interpolate' if interpolate else 'no_interpolate'))
                 if not interpolate:
+                    p, r = self.evaluator.precision_recall_query(query_id, sim, **params,
+                                                                 option='simple')
                     d[0].setText(str(np.array(precision).mean())[:7] if len(precision) else '0')
-                    d[2].setText(str(max(recall))[:7] if len(recall) else '0')
+                    d[2].setText(str(r)[:7])
+                    d[3].setText(str(p)[:7])
+                    f1score = 2 * p * r / (p + r) if p + r != 0 else 0
+                    d[4].setText(str(f1score)[:7])
                 else:
                     d[1].setText(str(np.array(precision).mean())[:7] if len(precision) else '0')
 
