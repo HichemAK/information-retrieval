@@ -9,4 +9,5 @@ query_dict, qrels_dict = read_cacm_query('../CACM/query.text', '../CACM/qrels.te
 
 vm = VectorSpaceModel(dictionary, sparse=True)
 evaluator = Evaluator(vm, query_dict, qrels_dict)
-performances = evaluator.precision_recall_query_all(f=0.05, interpolate=True)
+
+evaluator.precision_recall_query_all(option='simple', f_over_k=False)

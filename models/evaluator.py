@@ -31,7 +31,8 @@ class Evaluator:
             }
         return model_perform
 
-    def precision_recall_range(self, var, values, interpolate=False, sims=SimilarityFunctions):
+    def precision_recall_range(self, var, values, option='no_interpolate', sims=SimilarityFunctions):
+        """option : {'interpolate', 'simple', 'no_interpolate'}"""
         model_perfs = {sim: {
             "precision": [],
             "recall": [],
@@ -39,8 +40,8 @@ class Evaluator:
         } for sim in sims}
         for k in values:
             for sim in sims:
-                precision, recall = self.precision_recall_query_sim_all(sim=sim, interpolate=interpolate, **{var: k})
-                if interpolate:
+                precision, recall = self.precision_recall_query_sim_all(sim=sim, option=option, **{var: k})
+                if option == 'interpolate':
                     precision = precision.mean()
                     recall = precision.mean()
                 f1_score = 2 * precision * recall / (precision + recall) if precision + recall != 0 else 0
@@ -50,12 +51,17 @@ class Evaluator:
                 m['f1_score'].append(f1_score)
         return model_perfs
 
-    def precision_recall_query(self, query_id, sim=SimilarityFunctions.DOT, interpolate=False, **kwargs):
+    def precision_recall_query(self, query_id, sim=SimilarityFunctions.DOT, option='no_interpolate', **kwargs):
         precision, recall = [], []
         query = self.query_dict[query_id]
         query_rel = set(self.qrels_dict[query_id])
         e = self.model.eval(query, sim, **kwargs)
         e = [x for x, _ in e]
+        if option == 'simple':
+            intersect = query_rel.intersection(e)
+            p = len(intersect) / len(e) if len(e) else 0
+            r = len(intersect) / len(query_rel)
+            return p, r
         for i in range(1, len(e) + 1):
             if e[i-1] not in query_rel:
                 continue
@@ -65,7 +71,7 @@ class Evaluator:
             r = len(intersect) / len(query_rel)
             precision.append(p)
             recall.append(r)
-        if interpolate:
+        if option == 'no_interpolate':
             m = np.array([recall, precision])
 
             def f(x):
@@ -78,22 +84,25 @@ class Evaluator:
             precision = [f(x) for x in recall]
         return precision, recall
 
-    def precision_recall_query_all(self, sims=list(SimilarityFunctions), interpolate=False, **kwargs):
+    def precision_recall_query_all(self, sims=list(SimilarityFunctions), option="no_interpolate", **kwargs):
         d = dict()
         for sim in sims:
-            d[sim] = self.precision_recall_query_sim_all(sim, interpolate, **kwargs)
+            d[sim] = self.precision_recall_query_sim_all(sim, option, **kwargs)
         return d
 
-    def precision_recall_query_sim_all(self, sim, interpolate, **kwargs):
+    def precision_recall_query_sim_all(self, sim, option, **kwargs):
         precision = []
         recall = []
         for query_id in self.query_dict:
-            p, r = self.precision_recall_query(query_id, sim, interpolate=interpolate, **kwargs)
+            p, r = self.precision_recall_query(query_id, sim, option=option, **kwargs)
             precision.append(p), recall.append(r)
-        if interpolate:
+        if option == 'interpolate':
             precision = np.row_stack(precision).mean(axis=0)
             recall = np.row_stack(recall).mean(axis=0)
-        else:
+        elif option == 'no_interpolate':
             precision = sum(np.array(x).mean() if len(x) else 0 for x in precision)/len(precision)
             recall = sum(np.array(x).mean() if len(x) else 0 for x in recall)/len(recall)
+        else:
+            precision = sum(precision)/len(precision) if len(precision) else 0
+            recall = sum(recall)/len(recall) if len(recall) else 0
         return precision, recall
