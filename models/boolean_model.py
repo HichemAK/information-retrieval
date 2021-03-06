@@ -1,4 +1,3 @@
-import parser
 import re
 
 from utils import inverse_dict

@@ -1,5 +1,3 @@
-import math
-
 import numpy as np
 
 from models.vector_space_model import VectorSpaceModel, SimilarityFunctions
@@ -63,7 +61,7 @@ class Evaluator:
             r = len(intersect) / len(query_rel)
             return p, r
         for i in range(1, len(e) + 1):
-            if e[i-1] not in query_rel:
+            if e[i - 1] not in query_rel:
                 continue
             t = e[:i]
             intersect = query_rel.intersection(t)
@@ -100,9 +98,9 @@ class Evaluator:
             precision = np.row_stack(precision).mean(axis=0)
             recall = np.row_stack(recall).mean(axis=0)
         elif option == 'no_interpolate':
-            precision = sum(np.array(x).mean() if len(x) else 0 for x in precision)/len(precision)
-            recall = sum(np.array(x).mean() if len(x) else 0 for x in recall)/len(recall)
+            precision = sum(np.array(x).mean() if len(x) else 0 for x in precision) / len(precision)
+            recall = sum(np.array(x).mean() if len(x) else 0 for x in recall) / len(recall)
         else:
-            precision = sum(precision)/len(precision) if len(precision) else 0
-            recall = sum(recall)/len(recall) if len(recall) else 0
+            precision = sum(precision) / len(precision) if len(precision) else 0
+            recall = sum(recall) / len(recall) if len(recall) else 0
         return precision, recall
